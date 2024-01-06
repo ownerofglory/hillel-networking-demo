@@ -34,7 +34,7 @@ public class DefaultChatConnection implements ChatConnection {
                     final String message = reader.readLine();
                     if (message != null) {
                         handler.onMessage(this, message);
-                    }
+                    } else break;
                 }
 
 
