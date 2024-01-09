@@ -10,6 +10,9 @@
     <packaging>pom</packaging>
     <modules>
         <module>hillel-chat-server</module>
+        <module>hillel-chat-client</module>
+        <module>hillel-datagram-server</module>
+        <module>hillel-netty-server</module>
     </modules>
 
     <properties>
@@ -17,5 +20,15 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-all</artifactId>
+                <version>4.1.104.Final</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 </project>

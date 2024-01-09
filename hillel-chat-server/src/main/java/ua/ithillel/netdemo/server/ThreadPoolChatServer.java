@@ -5,13 +5,29 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-public class ChatServer implements Server, ChatHandler, AutoCloseable {
+public class ThreadPoolChatServer implements Server, ChatHandler, AutoCloseable {
+    private static final int DEFAULT_THREAD_COUNT = 2;
+    private static final int DEFAULT_PORT = 8080;
+
     private final ServerSocket serverSocket;
     private final List<ChatConnection> connections = new ArrayList<>();
+    private final ExecutorService executorService;
 
-    public ChatServer(int port) throws IOException {
+
+    public ThreadPoolChatServer(int port, int threads) throws IOException {
         serverSocket = new ServerSocket(port);
+        executorService = Executors.newFixedThreadPool(threads);
+    }
+
+    public ThreadPoolChatServer(int port) throws IOException {
+        this(port, DEFAULT_THREAD_COUNT);
+    }
+
+    public ThreadPoolChatServer() throws IOException {
+        this(DEFAULT_PORT, DEFAULT_THREAD_COUNT);
     }
 
     @Override
@@ -19,7 +35,8 @@ public class ChatServer implements Server, ChatHandler, AutoCloseable {
         while (!serverSocket.isClosed()) {
             final Socket socket = serverSocket.accept();
 
-            ChatConnection connection = new DefaultChatConnection(socket, this);
+            Runnable connection = new ThreadPoolChatConnection(socket, this);
+            executorService.submit(connection);
         }
     }
 
@@ -53,5 +70,7 @@ public class ChatServer implements Server, ChatHandler, AutoCloseable {
         if (!serverSocket.isClosed()) {
             serverSocket.close();
         }
+
+        executorService.shutdownNow();
     }
 }
